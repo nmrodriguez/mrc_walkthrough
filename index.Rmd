@@ -1,0 +1,77 @@
+---
+title: "Presentation Ninja"
+subtitle: "⚔<br/>with xaringan"
+author: "Yihui Xie"
+institute: "RStudio, PBC"
+date: "2016/12/12 (updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+``` {r, lib, echo=F, message=F, warning=F}
+library(tidyverse)
+library(ds4ling)
+library(untidydata)
+library(plot3D)
+```
+
+
+```{r}
+glimpse(language_diversity)
+
+ld <- language_diversity %>%
+  filter(., Continent == "Africa") %>%
+  pivot_wider(names_from = "Measurement", values_from = "Value")
+```
+
+
+---
+```{r}
+my_mod <- lm(Langs ~ Area + Population, data = ld)
+summary(my_mod)
+```
+
+---
+```{r}
+ld <- ld %>%
+  mutate(., logPop = log(Population),
+            logArea = log(Area))
+```
+
+
+---
+```{r, fig.height = 5, fig.width = 8}
+ld %>%
+ggplot(., aes(x = logPop, y = Langs, color = logArea, label = Country)) +
+  geom_text() +
+  geom_smooth(method = lm)
+```
+
+---
+```{r}
+log_mod_no_int <- lm(Langs ~ logPop + logArea, data = ld)
+summary(log_mod_no_int)
+```
+
+
+---
+```{r, fig.height = 5, fig.width = 11, fig.retina=2}
+x <- ld$logPop
+y <- ld$logArea
+z <- ld$Langs
+
+plot3D::scatter3D(x, y, z,
+    pch = 21, cex = 1, expand = 0.75, colkey = F,
+    theta = 45, phi = 20, ticktype = "detailed",
+    xlab = "logPop", ylab = "Area", zlab = "Langs")
+```
+
+---
+.pull-left[]
+
+.pull-right[]
